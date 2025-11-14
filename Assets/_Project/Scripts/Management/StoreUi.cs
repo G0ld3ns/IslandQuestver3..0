@@ -3,18 +3,30 @@ using TMPro;
 
 public class StoreUI : MonoBehaviour
 {
-    public PlayerStat player;
-    public TextMeshProUGUI goldText;
+    public PlayerStat player;          // DRAG: PlayerRoot/Player
+    public TextMeshProUGUI goldText;   // DRAG: "Your gold: X" tekstas
 
-    void Update()
+    void OnEnable()
     {
         if (!player || !goldText) return;
-        goldText.text = $"Your gold: {player.gold}";
+
+        // NEW: subscribe
+        player.OnGoldChanged += UpdateGold;
+
+        // pirmą kartą persipaišom
+        UpdateGold(player.gold);
     }
 
-    public void RefreshGold()
+    void OnDisable()
     {
-        if (!player || !goldText) return;
-        goldText.text = $"Your gold: {player.gold}";
+        if (!player) return;
+        player.OnGoldChanged -= UpdateGold;
+    }
+
+    // NEW: funkcija, kurią kviečia event'as
+    void UpdateGold(int gold)
+    {
+        if (!goldText) return;
+        goldText.text = $"Your gold: {gold}";
     }
 }

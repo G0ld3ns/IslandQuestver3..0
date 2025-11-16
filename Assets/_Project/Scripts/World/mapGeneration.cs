@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class MapGeneration : MonoBehaviour
 {
+    public EnemyFactory enemyFactory;
     [Header("Grid")]
     public GridGizmo gridGizmo;
     [Header("Prefabs")]
@@ -165,7 +168,6 @@ public class MapGeneration : MonoBehaviour
 
         Instantiate(healPrefab, pos, Quaternion.identity, transform);
 
-        // Pažymim, kad šita cell užimta, kad vėliau čia neatsirastų kiti objektai
         occupied[cell.x, cell.y] = true;
     }
 
@@ -196,7 +198,6 @@ public class MapGeneration : MonoBehaviour
 
     void SpawnEnemies()
     {
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0) return;
         if (enemyCount <= 0) return;
 
         int spawned = 0;
@@ -208,15 +209,22 @@ public class MapGeneration : MonoBehaviour
 
             Vector2Int cell = maybeCell.Value;
 
-            GameObject prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
             Vector3 pos = gridCorner + new Vector3(
                 (cell.x + 0.5f) * gridCellSize,
                 yOffSet,
                 (cell.y + 0.5f) * gridCellSize
             );
 
-            Instantiate(prefab, pos, Quaternion.identity, transform);
-            
+            if (enemyFactory != null)
+            {
+                enemyFactory.CreateRandomEnemy(pos, transform);
+            }
+            else if (enemyPrefabs != null && enemyPrefabs.Length > 0)
+            {
+                GameObject prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+                Instantiate(prefab, pos, Quaternion.Euler(0, 180, 0), transform);
+            }
+
             occupied[cell.x, cell.y] = true;
             spawned++;
         }

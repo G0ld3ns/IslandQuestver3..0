@@ -26,7 +26,7 @@ public class DamagePickup : MonoBehaviour
         var stats = other.GetComponentInParent<PlayerStat>();
         if (stats == null) return; 
 
-        stats.AddWeaponBonus(bonusDamage);
+        stats.IncreaseDamage(bonusDamage);
         Debug.Log($"+{bonusDamage} damage pickup! New dmg = {stats.TotalDamage}");
 
         Destroy(gameObject); 

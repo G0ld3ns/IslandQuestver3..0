@@ -3,6 +3,8 @@
 public class PlayerStat : MonoBehaviour
 {
     public event System.Action<int> OnGoldChanged;
+    public event System.Action<int, int> OnHpChanged;
+    public event System.Action<int> OnDamageChanged;
 
     [Header("Health")]
     public int maxHp = 5;
@@ -39,28 +41,28 @@ public class PlayerStat : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (amount < 0) return;
-
         hp = Mathf.Max(0, hp - amount);
-        Debug.Log($"Player took {amount} dmg. HP: {hp}/{maxHp}");
+
+        OnHpChanged?.Invoke(hp, maxHp);
 
         if (hp <= 0)
             GameOver();
     }
 
+
     public void Heal(int amount)
     {
-        if (amount <= 0) return;
         hp = Mathf.Min(maxHp, hp + amount);
-        Debug.Log($"Player healed {amount}. HP: {hp}/{maxHp}");
+        OnHpChanged?.Invoke(hp, maxHp);
     }
 
-    public void AddWeaponBonus(int bonus)
+
+    public void IncreaseDamage(int amount)
     {
-        if (bonus == 0) return;
-        bonusDamage += bonus;
-        Debug.Log($"Got weapon bonus {bonus}. Total damage: {TotalDamage}");
+        baseDamage += amount;
+        OnDamageChanged?.Invoke(baseDamage + bonusDamage);
     }
+
 
     public void AddGold(int amount)
     {

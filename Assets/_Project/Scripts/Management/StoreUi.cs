@@ -3,26 +3,21 @@ using TMPro;
 
 public class StoreUI : MonoBehaviour
 {
-    public PlayerStat player;         
-    public TextMeshProUGUI goldText;  
+    public TMP_Text goldText;
 
-    void OnEnable()
+    private void OnEnable()
     {
-        if (!player || !goldText) return;
-
-        player.OnGoldChanged += UpdateGold;
-
-        UpdateGold(player.gold);
+        GameManager.Instance.OnGoldChanged += RefreshGold;  
+        RefreshGold();
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
-        if (!player) return;
-        player.OnGoldChanged -= UpdateGold;
+        GameManager.Instance.OnGoldChanged -= RefreshGold; 
     }
-    void UpdateGold(int gold)
+
+    public void RefreshGold()
     {
-        if (!goldText) return;
-        goldText.text = $"Your gold: {gold}";
+        goldText.text = "Your Gold: " + GameManager.Instance.gold;
     }
 }

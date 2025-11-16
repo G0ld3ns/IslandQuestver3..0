@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
-using System;
 
 public class PlayerStat : MonoBehaviour
 {
+    public event System.Action<int> OnGoldChanged;
+
     [Header("Health")]
     public int maxHp = 5;
     public int hp = 5;
@@ -22,22 +23,12 @@ public class PlayerStat : MonoBehaviour
 
     [Header("Gold")]
     public int gold = 0;
-
-    //Observeriai
-    public event Action<int, int> OnHpChanged; 
-    public event Action<int> OnDamageChanged;
-    public event Action<int> OnGoldChanged;
-
     private void Start()
     {
         if (spawnPoint == Vector3.zero)
             spawnPoint = transform.position;
 
         hp = Mathf.Clamp(hp, 0, maxHp);
-
-        OnHpChanged?.Invoke(hp, maxHp);
-        OnDamageChanged?.Invoke(TotalDamage);
-        OnGoldChanged?.Invoke(gold);
 
     }
     void Update()
@@ -53,10 +44,8 @@ public class PlayerStat : MonoBehaviour
         hp = Mathf.Max(0, hp - amount);
         Debug.Log($"Player took {amount} dmg. HP: {hp}/{maxHp}");
 
-        OnHpChanged?.Invoke(hp, maxHp); 
-
         if (hp <= 0)
-            GameOver();  
+            GameOver();
     }
 
     public void Heal(int amount)
@@ -64,8 +53,6 @@ public class PlayerStat : MonoBehaviour
         if (amount <= 0) return;
         hp = Mathf.Min(maxHp, hp + amount);
         Debug.Log($"Player healed {amount}. HP: {hp}/{maxHp}");
-
-        OnHpChanged?.Invoke(hp, maxHp);
     }
 
     public void AddWeaponBonus(int bonus)
@@ -73,31 +60,23 @@ public class PlayerStat : MonoBehaviour
         if (bonus == 0) return;
         bonusDamage += bonus;
         Debug.Log($"Got weapon bonus {bonus}. Total damage: {TotalDamage}");
-
-        OnDamageChanged?.Invoke(TotalDamage);
     }
 
     public void AddGold(int amount)
     {
-        if (amount <= 0) return; 
-
-        gold += amount;
+        gold = Mathf.Max(0, gold + amount);
         Debug.Log($"Gold: {gold}");
 
         OnGoldChanged?.Invoke(gold);
     }
 
-    public void LosePendingTreasure()
-    {
-        hasTreasure = false;
-        pendingGold = 0;
-    }
+
 
     void GameOver()
     {
         Debug.Log("GAME OVER");
-
-        LosePendingTreasure();
+        hasTreasure = false;
+        pendingGold = 0;
 
         if (GameManager.Instance != null)
             GameManager.Instance.ShowGameOver();
